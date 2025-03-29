@@ -80,7 +80,7 @@ export default function Settings() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" />
             </svg>
-            <h1 className="text-xl font-bold">PoTS Symptom Tracker</h1>
+            <h1 className="text-xl font-bold">PoTs Symptom Tracker</h1>
           </div>
           <div className="flex items-center space-x-4">
             <Button
@@ -264,7 +264,7 @@ export default function Settings() {
               <TabsContent value="about">
                 <Card>
                   <CardHeader>
-                    <CardTitle>About PoTS Symptom Tracker</CardTitle>
+                    <CardTitle>About PoTs Symptom Tracker</CardTitle>
                     <CardDescription>
                       Information about the application
                     </CardDescription>
@@ -277,7 +277,7 @@ export default function Settings() {
                     <div>
                       <h3 className="font-medium">Description</h3>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        PoTS Symptom Tracker is a web-based application for people with PoTS and other chronic illnesses
+                        PoTs Symptom Tracker is a web-based application for people with PoTs and other chronic illnesses
                         to track symptoms, identify patterns, and share data with healthcare providers.
                       </p>
                     </div>
