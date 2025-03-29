@@ -15,48 +15,48 @@ export default function Sidebar() {
         <div className="h-0 flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
           <nav className="mt-5 px-2 space-y-1">
             <Link href="/">
-              <a className={`${
+              <div className={`${
                 location === "/" 
                   ? "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white" 
                   : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                } group flex items-center px-2 py-2 text-base font-medium rounded-md`}
+                } group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer`}
               >
                 <Home className="mr-4 h-6 w-6 text-primary" />
                 Dashboard
-              </a>
+              </div>
             </Link>
             <Link href="/history">
-              <a className={`${
+              <div className={`${
                 location === "/history" 
                   ? "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white" 
                   : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                } group flex items-center px-2 py-2 text-base font-medium rounded-md`}
+                } group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer`}
               >
                 <ClipboardList className="mr-4 h-6 w-6 text-gray-400 dark:text-gray-500" />
                 History
-              </a>
+              </div>
             </Link>
             <Link href="/insights">
-              <a className={`${
+              <div className={`${
                 location === "/insights" 
                   ? "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white" 
                   : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                } group flex items-center px-2 py-2 text-base font-medium rounded-md`}
+                } group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer`}
               >
                 <BarChart className="mr-4 h-6 w-6 text-gray-400 dark:text-gray-500" />
                 Insights
-              </a>
+              </div>
             </Link>
             <Link href="/settings">
-              <a className={`${
+              <div className={`${
                 location === "/settings" 
                   ? "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white" 
                   : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                } group flex items-center px-2 py-2 text-base font-medium rounded-md`}
+                } group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer`}
               >
                 <Settings className="mr-4 h-6 w-6 text-gray-400 dark:text-gray-500" />
                 Settings
-              </a>
+              </div>
             </Link>
           </nav>
         </div>
