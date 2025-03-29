@@ -4,7 +4,8 @@ import {
   ClipboardList, 
   BarChart, 
   Settings,
-  Plus 
+  Plus, 
+  Pill
 } from "lucide-react";
 
 interface MobileNavProps {
@@ -46,6 +47,14 @@ export default function MobileNav({ openAddSymptom }: MobileNavProps) {
           }`}>
             <BarChart className="h-6 w-6" />
             <span className="text-xs mt-1">Insights</span>
+          </div>
+        </Link>
+        <Link href="/medications">
+          <div className={`flex flex-col items-center py-3 px-4 cursor-pointer ${
+            location === "/medications" ? "text-primary" : "text-gray-500 dark:text-gray-400"
+          }`}>
+            <Pill className="h-6 w-6" />
+            <span className="text-xs mt-1">Meds</span>
           </div>
         </Link>
         <Link href="/settings">

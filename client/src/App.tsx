@@ -7,6 +7,7 @@ import Dashboard from "@/pages/Dashboard";
 import History from "@/pages/History";
 import Insights from "@/pages/Insights";
 import Settings from "@/pages/Settings";
+import Medications from "@/pages/Medications";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { AccessibilityProvider } from "@/hooks/useAccessibility";
 import { useEffect } from "react";
@@ -17,6 +18,7 @@ function Router() {
       <Route path="/" component={Dashboard} />
       <Route path="/history" component={History} />
       <Route path="/insights" component={Insights} />
+      <Route path="/medications" component={Medications} />
       <Route path="/settings" component={Settings} />
       <Route component={NotFound} />
     </Switch>

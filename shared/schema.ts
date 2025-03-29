@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, timestamp, json } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, json, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -50,6 +50,86 @@ export type Trigger = typeof triggers.$inferSelect;
 
 export type InsertCommonSymptom = z.infer<typeof insertCommonSymptomSchema>;
 export type CommonSymptom = typeof commonSymptoms.$inferSelect;
+
+// Define the medications table
+export const medications = pgTable("medications", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  dosage: text("dosage").notNull(), // e.g., "10mg"
+  frequency: text("frequency").notNull(), // e.g., "twice daily"
+  timeOfDay: json("time_of_day").$type<string[]>().default([]), // e.g., ["morning", "evening"]
+  startDate: timestamp("start_date").notNull().defaultNow(),
+  endDate: timestamp("end_date"), // Optional end date
+  notes: text("notes"),
+  active: boolean("active").default(true),
+  reminderEnabled: boolean("reminder_enabled").default(false),
+  reminderTimes: json("reminder_times").$type<string[]>().default([]), // Times for reminders
+});
+
+// Define the user profile table
+export const userProfiles = pgTable("user_profiles", {
+  id: serial("id").primaryKey(),
+  name: text("name"),
+  email: text("email"),
+  diagnosisDate: timestamp("diagnosis_date"),
+  healthConditions: json("health_conditions").$type<string[]>().default([]),
+  emergencyContact: text("emergency_contact"),
+  emergencyPhone: text("emergency_phone"),
+  doctorName: text("doctor_name"),
+  doctorPhone: text("doctor_phone"),
+  reminderPreference: text("reminder_preference").default("app"), // "app", "email", etc.
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Define insert schemas for new tables
+export const insertMedicationSchema = createInsertSchema(medications).omit({
+  id: true,
+});
+
+export const insertUserProfileSchema = createInsertSchema(userProfiles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Define types for new tables
+export type InsertMedication = z.infer<typeof insertMedicationSchema>;
+export type Medication = typeof medications.$inferSelect;
+
+export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
+export type UserProfile = typeof userProfiles.$inferSelect;
+
+// Define medication frequency types
+export const MEDICATION_FREQUENCY = {
+  ONCE_DAILY: "Once daily",
+  TWICE_DAILY: "Twice daily",
+  THREE_TIMES_DAILY: "Three times daily",
+  FOUR_TIMES_DAILY: "Four times daily",
+  EVERY_OTHER_DAY: "Every other day",
+  WEEKLY: "Weekly",
+  AS_NEEDED: "As needed",
+  CUSTOM: "Custom"
+};
+
+// Define times of day
+export const TIMES_OF_DAY = {
+  MORNING: "Morning",
+  AFTERNOON: "Afternoon",
+  EVENING: "Evening",
+  NIGHT: "Night",
+  BEFORE_MEAL: "Before meal",
+  WITH_MEAL: "With meal",
+  AFTER_MEAL: "After meal"
+};
+
+// Define reminder preferences
+export const REMINDER_PREFERENCES = {
+  APP: "app",
+  EMAIL: "email",
+  BOTH: "both",
+  NONE: "none"
+};
 
 // Define symptom severity levels for categorization
 export const SEVERITY_LEVELS = {

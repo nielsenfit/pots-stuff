@@ -85,7 +85,11 @@ export default function AddSymptomModal({
   // Add a new symptom
   const addSymptomMutation = useMutation({
     mutationFn: async (data: any) => {
-      return await apiRequest('POST', '/api/symptoms', data);
+      return await apiRequest('/api/symptoms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
     },
     onSuccess: () => {
       onOpenChange(false);
@@ -109,7 +113,11 @@ export default function AddSymptomModal({
   // Add a new trigger
   const addTriggerMutation = useMutation({
     mutationFn: async (data: any) => {
-      return await apiRequest('POST', '/api/triggers', data);
+      return await apiRequest('/api/triggers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
     },
     onSuccess: (_, variables) => {
       setTriggerInput('');
