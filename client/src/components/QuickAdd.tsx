@@ -65,10 +65,10 @@ export default function QuickAdd({ onSymptomClick }: QuickAddProps) {
           {commonSymptoms.map((symptom) => (
             <div 
               key={symptom.id}
-              className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition-all"
+              className="bg-gray-200 dark:bg-gray-800 rounded-lg p-3 cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-700 transition-all border border-gray-300 dark:border-gray-600 shadow-sm"
               onClick={() => onSymptomClick(symptom.name)}
             >
-              <span className="block text-center font-medium">{symptom.name}</span>
+              <span className="block text-center font-medium text-gray-900 dark:text-white">{symptom.name}</span>
             </div>
           ))}
         </div>
@@ -76,7 +76,7 @@ export default function QuickAdd({ onSymptomClick }: QuickAddProps) {
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <div className="bg-primary bg-opacity-10 rounded-lg p-4 text-center">
-              <Button variant="ghost" className="text-primary font-medium">
+              <Button variant="secondary" className="font-medium border border-primary">
                 <Plus className="w-4 h-4 mr-2" /> Add custom symptom
               </Button>
             </div>
