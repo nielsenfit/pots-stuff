@@ -168,7 +168,7 @@ export default function Insights() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" />
             </svg>
-            <h1 className="text-xl font-bold">SymptomTracker</h1>
+            <h1 className="text-xl font-bold">PoTS Symptom Tracker</h1>
           </div>
           <div className="flex items-center space-x-4">
             <button
