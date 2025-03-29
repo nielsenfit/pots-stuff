@@ -58,45 +58,59 @@ export default function QuickAdd({ onSymptomClick }: QuickAddProps) {
   return (
     <Card className="mb-8">
       <CardHeader>
-        <CardTitle>Quick Add Symptom</CardTitle>
+        <CardTitle id="quick-add-heading">Quick Add Symptom</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-6">
+        <div 
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-6"
+          role="group"
+          aria-labelledby="quick-add-heading"
+        >
           {commonSymptoms.map((symptom) => (
-            <div 
+            <button 
               key={symptom.id}
               className="bg-gray-200 dark:bg-gray-800 rounded-lg p-3 cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-700 transition-all border border-gray-300 dark:border-gray-600 shadow-sm"
               onClick={() => onSymptomClick(symptom.name)}
+              aria-label={`Add ${symptom.name} symptom`}
+              role="button"
             >
               <span className="block text-center font-medium text-gray-900 dark:text-white">{symptom.name}</span>
-            </div>
+            </button>
           ))}
         </div>
         
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <div className="bg-primary bg-opacity-10 rounded-lg p-4 text-center">
-              <Button variant="secondary" className="font-medium border border-primary">
-                <Plus className="w-4 h-4 mr-2" /> Add custom symptom
+              <Button 
+                variant="secondary" 
+                className="font-medium border border-primary"
+                aria-label="Add custom symptom"
+              >
+                <Plus className="w-4 h-4 mr-2" aria-hidden="true" /> Add custom symptom
               </Button>
             </div>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent aria-labelledby="custom-symptom-dialog-title">
             <DialogHeader>
-              <DialogTitle>Add Custom Symptom</DialogTitle>
+              <DialogTitle id="custom-symptom-dialog-title">Add Custom Symptom</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-2">
               <div className="space-y-2">
                 <Input
+                  id="symptom-name-input"
                   placeholder="Enter symptom name"
                   value={customSymptomName}
                   onChange={(e) => setCustomSymptomName(e.target.value)}
+                  aria-label="Symptom name"
+                  aria-required="true"
                 />
               </div>
               <Button 
                 onClick={handleAddCustomSymptom}
                 disabled={!customSymptomName.trim()}
                 className="w-full"
+                aria-label="Add custom symptom"
               >
                 Add Symptom
               </Button>

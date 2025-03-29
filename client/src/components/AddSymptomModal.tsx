@@ -201,43 +201,51 @@ export default function AddSymptomModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" aria-labelledby="symptom-dialog-title">
         <DialogHeader>
-          <DialogTitle>Log Symptom</DialogTitle>
+          <DialogTitle id="symptom-dialog-title">Log Symptom</DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4 py-2">
+        <div className="space-y-4 py-2" role="form" aria-label="Log symptom form">
           <div className="space-y-2">
-            <Label htmlFor="symptom">Symptom</Label>
+            <Label htmlFor="symptom-name">Symptom</Label>
             <Input
-              id="symptom"
+              id="symptom-name"
               placeholder="e.g., Headache, Nausea, etc."
               value={name}
               onChange={(e) => setName(e.target.value)}
+              aria-required="true"
+              required
             />
           </div>
           
           <div className="space-y-2">
-            <Label>Severity ({severity}/10)</Label>
+            <Label htmlFor="severity-slider">Severity ({severity}/10)</Label>
             <div className="flex items-center pt-2">
-              <span className="text-xs text-gray-500 dark:text-gray-400 w-8">Low</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400 w-8" id="severity-min" aria-hidden="true">Low</span>
               <Slider
+                id="severity-slider"
                 value={[severity]}
                 min={1}
                 max={10}
                 step={1}
                 onValueChange={(value) => setSeverity(value[0])}
                 className="flex-1 mx-2"
+                aria-valuemin={1}
+                aria-valuemax={10}
+                aria-valuenow={severity}
+                aria-labelledby="severity-slider"
+                aria-describedby="severity-min severity-max"
               />
-              <span className="text-xs text-gray-500 dark:text-gray-400 w-8">High</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400 w-8" id="severity-max" aria-hidden="true">High</span>
             </div>
           </div>
           
           <div className="space-y-2">
-            <Label>Duration</Label>
+            <Label htmlFor="duration-type">Duration</Label>
             <div className="grid grid-cols-2 gap-3">
-              <Select value={durationType} onValueChange={setDurationType}>
-                <SelectTrigger>
+              <Select value={durationType} onValueChange={setDurationType} name="duration-type">
+                <SelectTrigger id="duration-type" aria-label="Duration type">
                   <SelectValue placeholder="Select duration type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -247,19 +255,23 @@ export default function AddSymptomModal({
                 </SelectContent>
               </Select>
               <Input
+                id="duration-value"
                 type="number"
                 placeholder="Duration"
                 value={duration}
                 onChange={(e) => setDuration(e.target.value)}
                 min="1"
+                aria-label={`Duration in ${durationType}`}
+                aria-required="true"
+                required
               />
             </div>
           </div>
           
           <div className="space-y-2">
-            <Label>Triggers (Optional)</Label>
+            <Label htmlFor="trigger-input">Triggers (Optional)</Label>
             {selectedTriggers.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-2">
+              <div className="flex flex-wrap gap-2 mb-2" role="group" aria-label="Selected triggers">
                 {selectedTriggers.map((trigger, i) => (
                   <Badge key={i} variant="secondary" className="flex items-center">
                     {trigger}
@@ -267,8 +279,9 @@ export default function AddSymptomModal({
                       type="button"
                       className="ml-1 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
                       onClick={() => removeTrigger(trigger)}
+                      aria-label={`Remove ${trigger}`}
                     >
-                      <XCircle className="h-3 w-3" />
+                      <XCircle className="h-3 w-3" aria-hidden="true" />
                     </button>
                   </Badge>
                 ))}
@@ -276,6 +289,7 @@ export default function AddSymptomModal({
             )}
             <div className="flex">
               <Input
+                id="trigger-input"
                 placeholder="Add trigger"
                 value={triggerInput}
                 onChange={(e) => setTriggerInput(e.target.value)}
@@ -285,12 +299,14 @@ export default function AddSymptomModal({
                     addTrigger();
                   }
                 }}
+                aria-label="Trigger name"
               />
               <Button 
                 variant="secondary" 
                 className="ml-2" 
                 onClick={addTrigger}
                 disabled={!triggerInput.trim()}
+                aria-label="Add trigger"
               >
                 Add
               </Button>
@@ -298,12 +314,14 @@ export default function AddSymptomModal({
           </div>
           
           <div className="space-y-2">
-            <Label>Notes (Optional)</Label>
+            <Label htmlFor="notes">Notes (Optional)</Label>
             <Textarea
+              id="notes"
               rows={3}
               placeholder="Additional details about this symptom..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
+              aria-label="Additional notes"
             />
           </div>
         </div>
@@ -312,12 +330,14 @@ export default function AddSymptomModal({
           <Button 
             variant="outline" 
             onClick={() => onOpenChange(false)}
+            aria-label="Cancel"
           >
             Cancel
           </Button>
           <Button 
             onClick={handleSubmit}
             disabled={!name.trim() || !duration || isNaN(Number(duration)) || Number(duration) <= 0}
+            aria-label="Save symptom"
           >
             Save Symptom
           </Button>

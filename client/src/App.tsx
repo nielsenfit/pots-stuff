@@ -8,6 +8,7 @@ import History from "@/pages/History";
 import Insights from "@/pages/Insights";
 import Settings from "@/pages/Settings";
 import { ThemeProvider } from "@/components/ui/theme-provider";
+import { AccessibilityProvider } from "@/hooks/useAccessibility";
 import { useEffect } from "react";
 
 function Router() {
@@ -33,12 +34,14 @@ function App() {
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="theme">
-      <QueryClientProvider client={queryClient}>
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
-          <Router />
-          <Toaster />
-        </div>
-      </QueryClientProvider>
+      <AccessibilityProvider>
+        <QueryClientProvider client={queryClient}>
+          <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+            <Router />
+            <Toaster />
+          </div>
+        </QueryClientProvider>
+      </AccessibilityProvider>
     </ThemeProvider>
   );
 }

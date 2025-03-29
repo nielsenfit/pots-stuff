@@ -27,6 +27,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useAccessibility } from '@/hooks/useAccessibility';
 import AddSymptomModal from '@/components/AddSymptomModal';
 import localforage from 'localforage';
 
@@ -35,6 +36,14 @@ export default function Settings() {
   const { toast } = useToast();
   const [darkMode, setDarkMode] = useLocalStorage('theme', 'dark');
   const [offlineMode, setOfflineMode] = useLocalStorage('offlineMode', true);
+  const { 
+    highContrast, 
+    setHighContrast, 
+    largeText, 
+    setLargeText, 
+    screenReaderOptimized, 
+    setScreenReaderOptimized 
+  } = useAccessibility();
   
   const handleClearData = async () => {
     try {
@@ -60,9 +69,15 @@ export default function Settings() {
   };
 
   const handleResetSettings = () => {
+    // Reset appearance settings
     setDarkMode('dark');
     setOfflineMode(true);
     document.documentElement.classList.add('dark');
+    
+    // Reset accessibility settings
+    setHighContrast(false);
+    setLargeText(false);
+    setScreenReaderOptimized(false);
     
     toast({
       title: "Settings reset",
@@ -167,6 +182,52 @@ export default function Settings() {
                         id="offline-mode" 
                         checked={offlineMode}
                         onCheckedChange={setOfflineMode}
+                      />
+                    </div>
+                    
+                    <div className="pt-4 border-t">
+                      <h3 className="text-lg font-medium mb-2">Accessibility Options</h3>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label htmlFor="high-contrast">High Contrast Mode</Label>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Increase contrast for better visibility
+                        </p>
+                      </div>
+                      <Switch 
+                        id="high-contrast" 
+                        checked={highContrast}
+                        onCheckedChange={setHighContrast}
+                      />
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label htmlFor="large-text">Large Text Mode</Label>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Increase text size throughout the app
+                        </p>
+                      </div>
+                      <Switch 
+                        id="large-text" 
+                        checked={largeText}
+                        onCheckedChange={setLargeText}
+                      />
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label htmlFor="screen-reader">Screen Reader Optimization</Label>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Make app more compatible with screen readers
+                        </p>
+                      </div>
+                      <Switch 
+                        id="screen-reader" 
+                        checked={screenReaderOptimized}
+                        onCheckedChange={setScreenReaderOptimized}
                       />
                     </div>
                   </CardContent>
@@ -290,6 +351,7 @@ export default function Settings() {
                         <li>Export logs as CSV</li>
                         <li>Offline capability using local storage</li>
                         <li>Dark mode support</li>
+                        <li>Accessibility options (high contrast, large text, screen reader support)</li>
                       </ul>
                     </div>
                   </CardContent>
