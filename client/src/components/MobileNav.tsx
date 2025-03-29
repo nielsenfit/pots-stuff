@@ -5,7 +5,8 @@ import {
   BarChart, 
   Settings,
   Plus, 
-  Pill
+  Pill,
+  CircleDashed
 } from "lucide-react";
 
 interface MobileNavProps {
@@ -19,7 +20,7 @@ export default function MobileNav({ openAddSymptom }: MobileNavProps) {
     <div className="md:hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 fixed bottom-0 left-0 right-0 z-10">
       <div className="flex justify-around items-center relative">
         <Link href="/">
-          <div className={`flex flex-col items-center py-3 px-4 cursor-pointer ${
+          <div className={`flex flex-col items-center py-3 px-2 cursor-pointer ${
             location === "/" ? "text-primary" : "text-gray-500 dark:text-gray-400"
           }`}>
             <Home className="h-6 w-6" />
@@ -27,7 +28,7 @@ export default function MobileNav({ openAddSymptom }: MobileNavProps) {
           </div>
         </Link>
         <Link href="/history">
-          <div className={`flex flex-col items-center py-3 px-4 cursor-pointer ${
+          <div className={`flex flex-col items-center py-3 px-2 cursor-pointer ${
             location === "/history" ? "text-primary" : "text-gray-500 dark:text-gray-400"
           }`}>
             <ClipboardList className="h-6 w-6" />
@@ -42,7 +43,7 @@ export default function MobileNav({ openAddSymptom }: MobileNavProps) {
           <Plus className="h-8 w-8" aria-hidden="true" />
         </button>
         <Link href="/insights">
-          <div className={`flex flex-col items-center py-3 px-4 cursor-pointer ${
+          <div className={`flex flex-col items-center py-3 px-2 cursor-pointer ${
             location === "/insights" ? "text-primary" : "text-gray-500 dark:text-gray-400"
           }`}>
             <BarChart className="h-6 w-6" />
@@ -50,15 +51,23 @@ export default function MobileNav({ openAddSymptom }: MobileNavProps) {
           </div>
         </Link>
         <Link href="/medications">
-          <div className={`flex flex-col items-center py-3 px-4 cursor-pointer ${
+          <div className={`flex flex-col items-center py-3 px-2 cursor-pointer ${
             location === "/medications" ? "text-primary" : "text-gray-500 dark:text-gray-400"
           }`}>
             <Pill className="h-6 w-6" />
             <span className="text-xs mt-1">Meds</span>
           </div>
         </Link>
+        <Link href="/salt-tracker">
+          <div className={`flex flex-col items-center py-3 px-2 cursor-pointer ${
+            location === "/salt-tracker" ? "text-primary" : "text-gray-500 dark:text-gray-400"
+          }`}>
+            <CircleDashed className="h-6 w-6" />
+            <span className="text-xs mt-1">Salt</span>
+          </div>
+        </Link>
         <Link href="/settings">
-          <div className={`flex flex-col items-center py-3 px-4 cursor-pointer ${
+          <div className={`flex flex-col items-center py-3 px-2 cursor-pointer ${
             location === "/settings" ? "text-primary" : "text-gray-500 dark:text-gray-400"
           }`}>
             <Settings className="h-6 w-6" />

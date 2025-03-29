@@ -4,7 +4,8 @@ import {
   ClipboardList, 
   BarChart, 
   Settings,
-  Pill
+  Pill,
+  CircleDashed
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -57,6 +58,17 @@ export default function Sidebar() {
               >
                 <Pill className="mr-4 h-6 w-6 text-gray-400 dark:text-gray-500" />
                 Medications
+              </div>
+            </Link>
+            <Link href="/salt-tracker">
+              <div className={`${
+                location === "/salt-tracker" 
+                  ? "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white" 
+                  : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                } group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer`}
+              >
+                <CircleDashed className="mr-4 h-6 w-6 text-gray-400 dark:text-gray-500" />
+                Salt Tracker
               </div>
             </Link>
             <Link href="/settings">

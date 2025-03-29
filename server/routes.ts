@@ -6,7 +6,9 @@ import {
   insertTriggerSchema, 
   insertCommonSymptomSchema,
   insertMedicationSchema,
-  insertUserProfileSchema
+  insertUserProfileSchema,
+  insertSaltIntakeSchema,
+  insertSaltRecommendationSchema
 } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
@@ -331,6 +333,120 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: validationError.message });
       }
       res.status(500).json({ message: "Failed to update user profile" });
+    }
+  });
+  
+  // Salt intake routes
+  
+  // Get all salt intakes
+  app.get("/api/salt-intakes", async (_req: Request, res: Response) => {
+    try {
+      const intakes = await storage.getSaltIntakes();
+      res.json(intakes);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch salt intakes" });
+    }
+  });
+  
+  // Get salt intake by ID
+  app.get("/api/salt-intakes/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid salt intake ID" });
+      }
+      
+      const intake = await storage.getSaltIntakeById(id);
+      if (!intake) {
+        return res.status(404).json({ message: "Salt intake not found" });
+      }
+      
+      res.json(intake);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch salt intake" });
+    }
+  });
+  
+  // Get salt intakes by date range
+  app.get("/api/salt-intakes/range", async (req: Request, res: Response) => {
+    try {
+      const startDate = new Date(req.query.startDate as string);
+      const endDate = new Date(req.query.endDate as string);
+      
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        return res.status(400).json({ message: "Invalid date range provided" });
+      }
+      
+      const intakes = await storage.getSaltIntakesByDateRange(startDate, endDate);
+      res.json(intakes);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch salt intakes by date range" });
+    }
+  });
+  
+  // Add a new salt intake
+  app.post("/api/salt-intakes", async (req: Request, res: Response) => {
+    try {
+      const intakeData = insertSaltIntakeSchema.parse(req.body);
+      const intake = await storage.insertSaltIntake(intakeData);
+      res.status(201).json(intake);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationError = fromZodError(error);
+        return res.status(400).json({ message: validationError.message });
+      }
+      res.status(500).json({ message: "Failed to add salt intake" });
+    }
+  });
+  
+  // Delete a salt intake
+  app.delete("/api/salt-intakes/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid salt intake ID" });
+      }
+      
+      const success = await storage.deleteSaltIntake(id);
+      if (!success) {
+        return res.status(404).json({ message: "Salt intake not found" });
+      }
+      
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete salt intake" });
+    }
+  });
+  
+  // Salt recommendation routes
+  
+  // Get salt recommendation
+  app.get("/api/salt-recommendation", async (_req: Request, res: Response) => {
+    try {
+      const recommendation = await storage.getSaltRecommendation();
+      if (!recommendation) {
+        return res.status(404).json({ message: "Salt recommendation not found" });
+      }
+      res.json(recommendation);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch salt recommendation" });
+    }
+  });
+  
+  // Update salt recommendation
+  app.patch("/api/salt-recommendation", async (req: Request, res: Response) => {
+    try {
+      // Validate update data
+      const updateData = insertSaltRecommendationSchema.partial().parse(req.body);
+      
+      const updatedRecommendation = await storage.updateSaltRecommendation(updateData);
+      res.json(updatedRecommendation);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationError = fromZodError(error);
+        return res.status(400).json({ message: validationError.message });
+      }
+      res.status(500).json({ message: "Failed to update salt recommendation" });
     }
   });
 

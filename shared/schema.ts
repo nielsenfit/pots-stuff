@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, timestamp, json, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, json, boolean, real } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -136,4 +136,53 @@ export const SEVERITY_LEVELS = {
   LOW: { min: 1, max: 3, label: "Mild" },
   MEDIUM: { min: 4, max: 7, label: "Moderate" },
   HIGH: { min: 8, max: 10, label: "Severe" }
+};
+
+// Define the salt intake tracking table
+export const saltIntakes = pgTable("salt_intakes", {
+  id: serial("id").primaryKey(),
+  amount: real("amount").notNull(), // in grams
+  date: timestamp("date").notNull().defaultNow(),
+  source: text("source").notNull(), // e.g., "Salt tablet", "Food", "Electrolyte drink"
+  notes: text("notes"),
+});
+
+// Define user salt intake targets/recommendations table
+export const saltRecommendations = pgTable("salt_recommendations", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().default(1), // Default to primary user
+  dailyTarget: real("daily_target").notNull(), // in grams
+  maxSingleDose: real("max_single_dose"), // in grams
+  minDailyAmount: real("min_daily_amount"), // in grams
+  recommendedSources: json("recommended_sources").$type<string[]>().default([]),
+  doctorNotes: text("doctor_notes"),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Define insert schemas for salt tracking
+export const insertSaltIntakeSchema = createInsertSchema(saltIntakes).omit({
+  id: true,
+});
+
+export const insertSaltRecommendationSchema = createInsertSchema(saltRecommendations).omit({
+  id: true,
+  updatedAt: true,
+});
+
+// Define types for salt tracking
+export type InsertSaltIntake = z.infer<typeof insertSaltIntakeSchema>;
+export type SaltIntake = typeof saltIntakes.$inferSelect;
+
+export type InsertSaltRecommendation = z.infer<typeof insertSaltRecommendationSchema>;
+export type SaltRecommendation = typeof saltRecommendations.$inferSelect;
+
+// Define common salt sources for tracking
+export const SALT_SOURCES = {
+  SALT_TABLET: "Salt tablet",
+  ELECTROLYTE_DRINK: "Electrolyte drink",
+  FOOD: "Food item",
+  SALT_STICK: "Salt stick",
+  SALT_SUPPLEMENTS: "Salt supplement",
+  TABLE_SALT: "Added table salt",
+  OTHER: "Other source"
 };
