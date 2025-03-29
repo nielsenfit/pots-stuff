@@ -619,267 +619,295 @@ export default function SaltTracker() {
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   
   return (
-    <div className="grid lg:grid-cols-[250px_1fr] h-screen w-screen overflow-hidden">
-      <Sidebar />
-      
-      <div className="overflow-y-auto pb-20 lg:pb-0">
-        <div className="container mx-auto py-6 max-w-4xl">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">Salt Tracker</h1>
-            <div className="flex gap-2">
-              <Button onClick={() => setAddIntakeOpen(true)} className="flex items-center">
-                <Plus className="mr-1 h-4 w-4" /> Add Intake
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => setEditRecommendationOpen(true)}
-                className="flex items-center"
-              >
-                <Edit className="mr-1 h-4 w-4" /> Edit Recommendations
-              </Button>
-            </div>
+    <div className="flex flex-col min-h-screen">
+      {/* Header */}
+      <header className="bg-white dark:bg-gray-800 shadow-sm z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" />
+            </svg>
+            <h1 className="text-xl font-bold">PoTs Symptom Tracker</h1>
           </div>
-      
-          {isLoadingIntakes || isLoadingRecommendation ? (
-            <div className="flex justify-center py-10">
-              <p>Loading salt tracking data...</p>
+        </div>
+      </header>
+
+      {/* Main Content with Navigation */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar (desktop only) */}
+        <Sidebar />
+
+        {/* Main Content */}
+        <main id="main-content" className="flex-1 max-h-screen overflow-y-auto" role="main">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            {/* Page Header */}
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold">Salt Tracker</h2>
+                <p className="text-gray-500 dark:text-gray-400">Monitor your daily salt intake</p>
+              </div>
+              <div className="mt-4 md:mt-0 flex space-x-3">
+                <Button 
+                  onClick={() => setAddIntakeOpen(true)} 
+                  className="inline-flex items-center"
+                >
+                  <Plus className="mr-2 h-5 w-5" /> Add Intake
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setEditRecommendationOpen(true)}
+                  className="inline-flex items-center"
+                >
+                  <Edit className="mr-2 h-5 w-5" /> Edit Recommendations
+                </Button>
+              </div>
             </div>
-          ) : (
-            <>
-              <DailySaltProgress intakes={intakes} recommendation={recommendation} />
-              
-              <Tabs defaultValue="today" className="mb-6">
-                <TabsList>
-                  <TabsTrigger value="today">Today</TabsTrigger>
-                  <TabsTrigger value="history">History</TabsTrigger>
-                  <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
-                </TabsList>
+
+            {/* Main content */}
+            {isLoadingIntakes || isLoadingRecommendation ? (
+              <div className="flex justify-center py-10">
+                <p>Loading salt tracking data...</p>
+              </div>
+            ) : (
+              <>
+                <DailySaltProgress intakes={intakes} recommendation={recommendation} />
                 
-                <TabsContent value="today">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Today's Log</CardTitle>
-                      <CardDescription>
-                        Salt intake entries for today
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      {intakes.filter(intake => isToday(new Date(intake.date))).length > 0 ? (
-                        <div className="space-y-2">
-                          {intakes
-                            .filter(intake => isToday(new Date(intake.date)))
-                            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                            .map(intake => (
-                              <SaltIntakeItem 
-                                key={intake.id} 
-                                intake={intake} 
-                                onDelete={handleDeleteIntake} 
-                              />
-                            ))}
-                        </div>
-                      ) : (
-                        <div className="text-center py-6 text-gray-500">
-                          <Calendar className="mx-auto h-10 w-10 mb-2" />
-                          <p>No salt intake logged for today</p>
-                          <Button 
-                            variant="outline" 
-                            className="mt-4"
-                            onClick={() => setAddIntakeOpen(true)}
-                          >
-                            Add Your First Entry
-                          </Button>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-                
-                <TabsContent value="history">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Salt Intake History</CardTitle>
-                      <CardDescription>
-                        Past 7 days of salt consumption
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      {recentIntakes.length > 0 ? (
-                        <div className="space-y-6">
-                          {/* Chart/visualization of daily totals */}
-                          <div className="h-40 rounded-md overflow-hidden bg-slate-50 px-4 pt-4 pb-2">
-                            <h3 className="text-sm font-medium mb-2">Daily Salt Consumption</h3>
-                            <div className="flex items-end h-24 gap-2">
-                              {dailyTotals.map((day) => (
-                                <div key={day.date} className="flex flex-col items-center flex-1">
-                                  <div className="relative flex-grow w-full flex items-end mb-1">
-                                    <div 
-                                      className="bg-primary/70 w-full rounded-t"
-                                      style={{ 
-                                        height: `${Math.min((day.total / (recommendation?.dailyTarget || 3.0)) * 100, 100)}%`,
-                                        minHeight: "4px"
-                                      }}
-                                    ></div>
-                                  </div>
-                                  <span className="text-xs whitespace-nowrap">{day.formattedDate}</span>
-                                </div>
+                <Tabs defaultValue="today" className="mb-6">
+                  <TabsList>
+                    <TabsTrigger value="today">Today</TabsTrigger>
+                    <TabsTrigger value="history">History</TabsTrigger>
+                    <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="today">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Today's Log</CardTitle>
+                        <CardDescription>
+                          Salt intake entries for today
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        {intakes.filter(intake => isToday(new Date(intake.date))).length > 0 ? (
+                          <div className="space-y-2">
+                            {intakes
+                              .filter(intake => isToday(new Date(intake.date)))
+                              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                              .map(intake => (
+                                <SaltIntakeItem 
+                                  key={intake.id} 
+                                  intake={intake} 
+                                  onDelete={handleDeleteIntake} 
+                                />
                               ))}
-                            </div>
                           </div>
-                          
-                          {/* List of days with entries */}
-                          <div>
-                            {Object.entries(groupedIntakes)
-                              .sort(([dateA], [dateB]) => new Date(dateB).getTime() - new Date(dateA).getTime())
-                              .slice(0, 7) // Limit to last 7 days with entries
-                              .map(([date, dayIntakes]) => {
-                                const totalForDay = dayIntakes.reduce((sum, intake) => sum + intake.amount, 0);
-                                const dateObj = new Date(date);
-                                const displayDate = isToday(dateObj) 
-                                  ? "Today" 
-                                  : differenceInDays(new Date(), dateObj) === 1 
-                                    ? "Yesterday" 
-                                    : format(dateObj, "EEEE, MMM d");
-                                    
-                                return (
-                                  <div key={date} className="mb-4">
-                                    <div className="flex justify-between items-center mb-2">
-                                      <h3 className="font-medium">{displayDate}</h3>
-                                      <span className="text-sm">
-                                        Total: {totalForDay.toFixed(1)}g
-                                      </span>
-                                    </div>
-                                    <div className="space-y-2">
-                                      {dayIntakes
-                                        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                                        .map(intake => (
-                                          <SaltIntakeItem 
-                                            key={intake.id} 
-                                            intake={intake} 
-                                            onDelete={handleDeleteIntake} 
-                                          />
-                                        ))}
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="text-center py-8 text-gray-500">
-                          <Calendar className="mx-auto h-10 w-10 mb-2" />
-                          <p>No salt intake history found</p>
-                          <Button 
-                            variant="outline" 
-                            className="mt-4"
-                            onClick={() => setAddIntakeOpen(true)}
-                          >
-                            Start Tracking
-                          </Button>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-                
-                <TabsContent value="recommendations">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Salt Intake Recommendations</CardTitle>
-                      <CardDescription>
-                        Your personalized salt intake guidelines
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        <div className="grid md:grid-cols-3 gap-4">
-                          <div className="bg-slate-50 p-4 rounded-md">
-                            <h3 className="text-sm font-medium mb-1">Daily Target</h3>
-                            <p className="text-2xl font-semibold">
-                              {recommendation?.dailyTarget.toFixed(1) || "3.0"}g
-                            </p>
-                            <p className="text-xs text-gray-500 mt-1">
-                              Recommended daily salt intake
-                            </p>
-                          </div>
-                          
-                          <div className="bg-slate-50 p-4 rounded-md">
-                            <h3 className="text-sm font-medium mb-1">Minimum Daily</h3>
-                            <p className="text-2xl font-semibold">
-                              {recommendation?.minDailyAmount?.toFixed(1) || "2.0"}g
-                            </p>
-                            <p className="text-xs text-gray-500 mt-1">
-                              Minimum needed per day
-                            </p>
-                          </div>
-                          
-                          <div className="bg-slate-50 p-4 rounded-md">
-                            <h3 className="text-sm font-medium mb-1">Max Single Dose</h3>
-                            <p className="text-2xl font-semibold">
-                              {recommendation?.maxSingleDose?.toFixed(1) || "1.0"}g
-                            </p>
-                            <p className="text-xs text-gray-500 mt-1">
-                              Maximum per single dose
-                            </p>
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <h3 className="text-sm font-medium mb-2">Recommended Sources</h3>
-                          {recommendation?.recommendedSources && recommendation.recommendedSources.length > 0 ? (
-                            <div className="flex flex-wrap gap-2">
-                              {recommendation.recommendedSources.map((source) => (
-                                <Badge key={source} variant="secondary">
-                                  {source}
-                                </Badge>
-                              ))}
-                            </div>
-                          ) : (
-                            <p className="text-sm text-gray-500">
-                              No specific sources recommended yet. Edit your recommendations to add preferred sources.
-                            </p>
-                          )}
-                        </div>
-                        
-                        {recommendation?.doctorNotes && (
-                          <div className="mt-4">
-                            <h3 className="text-sm font-medium mb-2">Doctor's Notes</h3>
-                            <div className="bg-slate-50 p-3 rounded-md text-sm">
-                              {recommendation.doctorNotes}
-                            </div>
+                        ) : (
+                          <div className="text-center py-6 text-gray-500">
+                            <Calendar className="mx-auto h-10 w-10 mb-2" />
+                            <p>No salt intake logged for today</p>
+                            <Button 
+                              variant="outline" 
+                              className="mt-4"
+                              onClick={() => setAddIntakeOpen(true)}
+                            >
+                              Add Your First Entry
+                            </Button>
                           </div>
                         )}
-                        
-                        <div className="mt-6">
-                          <Button
-                            variant="outline"
-                            onClick={() => setEditRecommendationOpen(true)}
-                            className="w-full"
-                          >
-                            <Edit className="mr-2 h-4 w-4" /> Edit Recommendations
-                          </Button>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                  
+                  <TabsContent value="history">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Salt Intake History</CardTitle>
+                        <CardDescription>
+                          Past 7 days of salt consumption
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        {recentIntakes.length > 0 ? (
+                          <div className="space-y-6">
+                            {/* Chart/visualization of daily totals */}
+                            <div className="h-40 rounded-md overflow-hidden bg-slate-50 px-4 pt-4 pb-2">
+                              <h3 className="text-sm font-medium mb-2">Daily Salt Consumption</h3>
+                              <div className="flex items-end h-24 gap-2">
+                                {dailyTotals.map((day) => (
+                                  <div key={day.date} className="flex flex-col items-center flex-1">
+                                    <div className="relative flex-grow w-full flex items-end mb-1">
+                                      <div 
+                                        className="bg-primary/70 w-full rounded-t"
+                                        style={{ 
+                                          height: `${Math.min((day.total / (recommendation?.dailyTarget || 3.0)) * 100, 100)}%`,
+                                          minHeight: "4px"
+                                        }}
+                                      ></div>
+                                    </div>
+                                    <span className="text-xs whitespace-nowrap">{day.formattedDate}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            {/* List of days with entries */}
+                            <div>
+                              {Object.entries(groupedIntakes)
+                                .sort(([dateA], [dateB]) => new Date(dateB).getTime() - new Date(dateA).getTime())
+                                .slice(0, 7) // Limit to last 7 days with entries
+                                .map(([date, dayIntakes]) => {
+                                  const totalForDay = dayIntakes.reduce((sum, intake) => sum + intake.amount, 0);
+                                  const dateObj = new Date(date);
+                                  const displayDate = isToday(dateObj) 
+                                    ? "Today" 
+                                    : differenceInDays(new Date(), dateObj) === 1 
+                                      ? "Yesterday" 
+                                      : format(dateObj, "EEEE, MMM d");
+                                      
+                                  return (
+                                    <div key={date} className="mb-4">
+                                      <div className="flex justify-between items-center mb-2">
+                                        <h3 className="font-medium">{displayDate}</h3>
+                                        <span className="text-sm">
+                                          Total: {totalForDay.toFixed(1)}g
+                                        </span>
+                                      </div>
+                                      <div className="space-y-2">
+                                        {dayIntakes
+                                          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                                          .map(intake => (
+                                            <SaltIntakeItem 
+                                              key={intake.id} 
+                                              intake={intake} 
+                                              onDelete={handleDeleteIntake} 
+                                            />
+                                          ))}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-center py-8 text-gray-500">
+                            <Calendar className="mx-auto h-10 w-10 mb-2" />
+                            <p>No salt intake history found</p>
+                            <Button 
+                              variant="outline" 
+                              className="mt-4"
+                              onClick={() => setAddIntakeOpen(true)}
+                            >
+                              Start Tracking
+                            </Button>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                  
+                  <TabsContent value="recommendations">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Salt Intake Recommendations</CardTitle>
+                        <CardDescription>
+                          Your personalized salt intake guidelines
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          <div className="grid md:grid-cols-3 gap-4">
+                            <div className="bg-slate-50 p-4 rounded-md">
+                              <h3 className="text-sm font-medium mb-1">Daily Target</h3>
+                              <p className="text-2xl font-semibold">
+                                {recommendation?.dailyTarget.toFixed(1) || "3.0"}g
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                Recommended daily salt intake
+                              </p>
+                            </div>
+                            
+                            <div className="bg-slate-50 p-4 rounded-md">
+                              <h3 className="text-sm font-medium mb-1">Minimum Daily</h3>
+                              <p className="text-2xl font-semibold">
+                                {recommendation?.minDailyAmount?.toFixed(1) || "2.0"}g
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                Minimum needed per day
+                              </p>
+                            </div>
+                            
+                            <div className="bg-slate-50 p-4 rounded-md">
+                              <h3 className="text-sm font-medium mb-1">Max Single Dose</h3>
+                              <p className="text-2xl font-semibold">
+                                {recommendation?.maxSingleDose?.toFixed(1) || "1.0"}g
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                Maximum per single dose
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <h3 className="text-sm font-medium mb-2">Recommended Sources</h3>
+                            {recommendation?.recommendedSources && recommendation.recommendedSources.length > 0 ? (
+                              <div className="flex flex-wrap gap-2">
+                                {recommendation.recommendedSources.map((source) => (
+                                  <Badge key={source} variant="secondary">
+                                    {source}
+                                  </Badge>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-sm text-gray-500">
+                                No specific sources recommended yet. Edit your recommendations to add preferred sources.
+                              </p>
+                            )}
+                          </div>
+                          
+                          {recommendation?.doctorNotes && (
+                            <div className="mt-4">
+                              <h3 className="text-sm font-medium mb-2">Doctor's Notes</h3>
+                              <div className="bg-slate-50 p-3 rounded-md text-sm">
+                                {recommendation.doctorNotes}
+                              </div>
+                            </div>
+                          )}
+                          
+                          <div className="mt-6">
+                            <Button
+                              variant="outline"
+                              onClick={() => setEditRecommendationOpen(true)}
+                              className="w-full"
+                            >
+                              <Edit className="mr-2 h-4 w-4" /> Edit Recommendations
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-              </Tabs>
-            </>
-          )}
-          
-          {/* Dialogs */}
-          <AddSaltIntakeForm open={addIntakeOpen} onOpenChange={setAddIntakeOpen} />
-          <EditRecommendationForm 
-            open={editRecommendationOpen} 
-            onOpenChange={setEditRecommendationOpen} 
-            initialData={recommendation}
-          />
-          <AddSymptomModal 
-            open={addSymptomOpen} 
-            onOpenChange={setAddSymptomOpen} 
-          />
-        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
+              </>
+            )}
+          </div>
+        </main>
       </div>
+
+      {/* Mobile Navigation */}
       <MobileNav openAddSymptom={() => setAddSymptomOpen(true)} />
+
+      {/* Modals */}
+      <AddSaltIntakeForm open={addIntakeOpen} onOpenChange={setAddIntakeOpen} />
+      <EditRecommendationForm 
+        open={editRecommendationOpen} 
+        onOpenChange={setEditRecommendationOpen} 
+        initialData={recommendation}
+      />
+      <AddSymptomModal 
+        open={addSymptomOpen} 
+        onOpenChange={setAddSymptomOpen} 
+      />
     </div>
   );
 }
