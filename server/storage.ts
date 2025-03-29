@@ -52,7 +52,7 @@ export class MemStorage implements IStorage {
     this.insertCommonSymptom({ name: "Dizziness" });
     this.insertCommonSymptom({ name: "Joint Pain" });
     this.insertCommonSymptom({ name: "Fever" });
-    this.insertCommonSymptom({ name: "Cough" });
+    this.insertCommonSymptom({ name: "Chest Pain" });
     this.insertCommonSymptom({ name: "Anxiety" });
   }
 
