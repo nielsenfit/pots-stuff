@@ -126,7 +126,7 @@ export default function History() {
                   placeholder="Search symptoms, triggers, notes..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full"
+                  className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 />
               </div>
               <div>
@@ -134,7 +134,7 @@ export default function History() {
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full justify-start text-left font-normal sm:w-[240px]"
+                      className="w-full justify-start text-left font-normal sm:w-[240px] border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {date ? format(date, "PPP") : "Pick a date"}
@@ -152,9 +152,9 @@ export default function History() {
               </div>
               {date && (
                 <Button 
-                  variant="ghost" 
+                  variant="secondary" 
                   onClick={() => setDate(undefined)}
-                  className="w-full sm:w-auto"
+                  className="w-full sm:w-auto border border-gray-300 dark:border-gray-600 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white"
                 >
                   Clear date
                 </Button>
@@ -219,7 +219,7 @@ export default function History() {
                       setSearchTerm('');
                       setDate(undefined);
                     }}
-                    className="mt-4"
+                    className="mt-4 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                   >
                     Clear filters
                   </Button>
