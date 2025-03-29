@@ -277,10 +277,10 @@ export default function Settings() {
               <p className="text-gray-500 dark:text-gray-400">Manage your app preferences and data</p>
             </div>
 
-            <Tabs defaultValue="preferences" className="space-y-6">
+            <Tabs defaultValue="profile" className="space-y-6">
               <TabsList>
-                <TabsTrigger value="preferences">Preferences</TabsTrigger>
                 <TabsTrigger value="profile">Profile</TabsTrigger>
+                <TabsTrigger value="preferences">Preferences</TabsTrigger>
                 <TabsTrigger value="data">Data Management</TabsTrigger>
                 <TabsTrigger value="support">Help & Support</TabsTrigger>
                 <TabsTrigger value="about">About</TabsTrigger>
