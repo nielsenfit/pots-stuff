@@ -84,7 +84,7 @@ export default function QuickAdd({ onSymptomClick }: QuickAddProps) {
             <div className="bg-primary bg-opacity-10 rounded-lg p-4 text-center">
               <Button 
                 variant="secondary" 
-                className="font-medium border border-primary"
+                className="font-medium border border-primary flex items-center justify-center"
                 aria-label="Add custom symptom"
               >
                 <Plus className="w-4 h-4 mr-2" aria-hidden="true" /> Add custom symptom

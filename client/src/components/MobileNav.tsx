@@ -35,9 +35,10 @@ export default function MobileNav({ openAddSymptom }: MobileNavProps) {
         </Link>
         <button 
           onClick={openAddSymptom}
-          className="flex flex-col items-center py-3 px-4 bg-primary text-white rounded-full -mt-6 shadow-lg"
+          className="flex items-center justify-center w-14 h-14 bg-primary text-white rounded-full -mt-6 shadow-lg"
+          aria-label="Add symptom"
         >
-          <Plus className="h-8 w-8" />
+          <Plus className="h-8 w-8" aria-hidden="true" />
         </button>
         <Link href="/insights">
           <div className={`flex flex-col items-center py-3 px-4 cursor-pointer ${

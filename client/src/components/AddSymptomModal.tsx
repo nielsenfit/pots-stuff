@@ -303,7 +303,7 @@ export default function AddSymptomModal({
               />
               <Button 
                 variant="secondary" 
-                className="ml-2" 
+                className="ml-2 flex items-center justify-center" 
                 onClick={addTrigger}
                 disabled={!triggerInput.trim()}
                 aria-label="Add trigger"

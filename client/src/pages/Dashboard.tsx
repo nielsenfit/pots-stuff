@@ -10,15 +10,19 @@ import ExportModal from '@/components/ExportModal';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { Download, Filter } from 'lucide-react';
+import { Symptom } from '@shared/schema';
 
 export default function Dashboard() {
   const [addSymptomOpen, setAddSymptomOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
 
   // Fetch symptoms data
-  const { data: symptoms = [] } = useQuery({
+  const { data } = useQuery<Symptom[]>({
     queryKey: ['/api/symptoms'],
   });
+  
+  // Ensure we always have a properly typed array
+  const symptoms: Symptom[] = data || [];
 
   return (
     <div className="flex flex-col min-h-screen">
