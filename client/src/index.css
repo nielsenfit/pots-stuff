@@ -7,7 +7,29 @@
     @apply border-border;
   }
 
+  :root {
+    --background: 180 20% 98%;
+    --foreground: 180 10% 15%;
+    --card: 180 20% 98%;
+    --card-foreground: 180 10% 15%;
+    --popover: 180 20% 98%;
+    --popover-foreground: 180 10% 15%;
+    --muted: 180 10% 92%;
+    --muted-foreground: 180 10% 40%;
+  }
+
+  .dark {
+    --background: 180 15% 15%;
+    --foreground: 180 10% 92%;
+    --card: 180 15% 18%;
+    --card-foreground: 180 10% 92%;
+    --popover: 180 15% 18%;
+    --popover-foreground: 180 10% 92%;
+    --muted: 180 10% 25%;
+    --muted-foreground: 180 10% 75%;
+  }
+
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-sans antialiased bg-background text-foreground transition-colors duration-300;
   }
 }
