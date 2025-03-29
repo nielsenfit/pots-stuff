@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useLocalStorage } from './useLocalStorage';
 
 type AccessibilityContextType = {
   highContrast: boolean;
@@ -12,50 +13,44 @@ type AccessibilityContextType = {
 const AccessibilityContext = createContext<AccessibilityContextType | undefined>(undefined);
 
 export const AccessibilityProvider = ({ children }: { children: React.ReactNode }) => {
-  // Initialize state from localStorage or defaults
-  const [highContrast, setHighContrast] = useState<boolean>(() => {
-    const saved = localStorage.getItem('accessibility_highContrast');
-    return saved !== null ? JSON.parse(saved) : false;
-  });
+  const [highContrast, setHighContrast] = useLocalStorage('accessibility-high-contrast', false);
+  const [largeText, setLargeText] = useLocalStorage('accessibility-large-text', false);
+  const [screenReaderOptimized, setScreenReaderOptimized] = useLocalStorage('accessibility-screen-reader', false);
 
-  const [largeText, setLargeText] = useState<boolean>(() => {
-    const saved = localStorage.getItem('accessibility_largeText');
-    return saved !== null ? JSON.parse(saved) : false;
-  });
-
-  const [screenReaderOptimized, setScreenReaderOptimized] = useState<boolean>(() => {
-    const saved = localStorage.getItem('accessibility_screenReader');
-    return saved !== null ? JSON.parse(saved) : false;
-  });
-
-  // Update localStorage when settings change
+  // Apply classes to the document.documentElement (html) element
   useEffect(() => {
-    localStorage.setItem('accessibility_highContrast', JSON.stringify(highContrast));
-    document.documentElement.classList.toggle('high-contrast', highContrast);
-  }, [highContrast]);
-
-  useEffect(() => {
-    localStorage.setItem('accessibility_largeText', JSON.stringify(largeText));
-    document.documentElement.classList.toggle('large-text', largeText);
-  }, [largeText]);
-
-  useEffect(() => {
-    localStorage.setItem('accessibility_screenReader', JSON.stringify(screenReaderOptimized));
-    document.documentElement.classList.toggle('screen-reader-optimized', screenReaderOptimized);
-  }, [screenReaderOptimized]);
-
-  // Provide context value
-  const value = {
-    highContrast,
-    setHighContrast,
-    largeText,
-    setLargeText,
-    screenReaderOptimized,
-    setScreenReaderOptimized,
-  };
+    const htmlElement = document.documentElement;
+    
+    if (highContrast) {
+      htmlElement.classList.add('high-contrast');
+    } else {
+      htmlElement.classList.remove('high-contrast');
+    }
+    
+    if (largeText) {
+      htmlElement.classList.add('large-text');
+    } else {
+      htmlElement.classList.remove('large-text');
+    }
+    
+    if (screenReaderOptimized) {
+      htmlElement.classList.add('screen-reader-optimized');
+    } else {
+      htmlElement.classList.remove('screen-reader-optimized');
+    }
+  }, [highContrast, largeText, screenReaderOptimized]);
 
   return (
-    <AccessibilityContext.Provider value={value}>
+    <AccessibilityContext.Provider
+      value={{
+        highContrast,
+        setHighContrast,
+        largeText,
+        setLargeText,
+        screenReaderOptimized,
+        setScreenReaderOptimized,
+      }}
+    >
       {children}
     </AccessibilityContext.Provider>
   );

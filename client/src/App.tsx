@@ -36,7 +36,17 @@ function App() {
     <ThemeProvider defaultTheme="dark" storageKey="theme">
       <AccessibilityProvider>
         <QueryClientProvider client={queryClient}>
-          <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+          <div 
+            className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200" 
+            role="application"
+            aria-label="PoTs Symptom Tracker application"
+          >
+            <a 
+              href="#main-content" 
+              className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-primary focus:text-white"
+            >
+              Skip to main content
+            </a>
             <Router />
             <Toaster />
           </div>

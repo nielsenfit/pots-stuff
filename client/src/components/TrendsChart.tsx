@@ -87,42 +87,54 @@ export default function TrendsChart({ symptoms }: TrendsChartProps) {
         <CardTitle>Symptom Trends</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-64 relative">
+        <div className="h-64 relative" role="figure" aria-labelledby="trends-chart-title" aria-describedby="trends-chart-desc">
+          <h3 id="trends-chart-title" className="sr-only">Weekly symptom severity trends</h3>
+          <p id="trends-chart-desc" className="sr-only">Bar chart showing mild, moderate, and severe symptoms for each day of the week</p>
+          
           {/* Simple Bar Chart */}
-          <div className="flex items-end justify-between h-48 relative">
+          <div className="flex items-end justify-between h-48 relative" role="graphics-document" aria-roledescription="bar chart">
             {weekData.map((day, index) => (
-              <div key={index} className="flex flex-col items-center">
+              <div key={index} className="flex flex-col items-center" role="graphics-symbol" aria-roledescription="day column">
                 <div className="flex flex-col space-y-1 items-center">
                   <div 
                     className="chart-bar w-8 bg-green-500 rounded-t-sm transition-all duration-500" 
                     style={{ height: `${day.mild * 10}%` }}
+                    role="graphics-symbol"
+                    aria-label={`${day.mild} mild symptoms on ${day.day}`}
+                    aria-roledescription="mild symptoms bar"
                   ></div>
                   <div 
                     className="chart-bar w-8 bg-yellow-500 rounded-t-sm transition-all duration-500" 
                     style={{ height: `${day.moderate * 10}%` }}
+                    role="graphics-symbol"
+                    aria-label={`${day.moderate} moderate symptoms on ${day.day}`}
+                    aria-roledescription="moderate symptoms bar"
                   ></div>
                   <div 
                     className="chart-bar w-8 bg-red-500 rounded-t-sm transition-all duration-500" 
                     style={{ height: `${day.severe * 10}%` }}
+                    role="graphics-symbol"
+                    aria-label={`${day.severe} severe symptoms on ${day.day}`}
+                    aria-roledescription="severe symptoms bar"
                   ></div>
                 </div>
-                <span className="text-xs mt-2 text-gray-500 dark:text-gray-400">{day.day}</span>
+                <span className="text-xs mt-2 text-gray-500 dark:text-gray-400" aria-hidden="true">{day.day}</span>
               </div>
             ))}
           </div>
           
           {/* Legend */}
-          <div className="flex items-center justify-center mt-4 space-x-6">
-            <div className="flex items-center">
-              <div className="w-3 h-3 bg-green-500 rounded-sm mr-2"></div>
+          <div className="flex items-center justify-center mt-4 space-x-6" role="list" aria-label="Chart legend">
+            <div className="flex items-center" role="listitem">
+              <div className="w-3 h-3 bg-green-500 rounded-sm mr-2" aria-hidden="true"></div>
               <span className="text-xs text-gray-500 dark:text-gray-400">Mild</span>
             </div>
-            <div className="flex items-center">
-              <div className="w-3 h-3 bg-yellow-500 rounded-sm mr-2"></div>
+            <div className="flex items-center" role="listitem">
+              <div className="w-3 h-3 bg-yellow-500 rounded-sm mr-2" aria-hidden="true"></div>
               <span className="text-xs text-gray-500 dark:text-gray-400">Moderate</span>
             </div>
-            <div className="flex items-center">
-              <div className="w-3 h-3 bg-red-500 rounded-sm mr-2"></div>
+            <div className="flex items-center" role="listitem">
+              <div className="w-3 h-3 bg-red-500 rounded-sm mr-2" aria-hidden="true"></div>
               <span className="text-xs text-gray-500 dark:text-gray-400">Severe</span>
             </div>
           </div>
