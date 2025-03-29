@@ -11,7 +11,7 @@ export function generateCSV(symptoms: Symptom[]): string {
   }
 
   // Define headers
-  const headers = ['ID', 'Symptom', 'Severity', 'Duration', 'Duration Type', 'Date', 'Triggers', 'Notes'];
+  const headers = ['ID', 'Symptom', 'Severity', 'Duration', 'Duration Type', 'Date', 'Triggers', 'Relief Methods', 'Relief Effectiveness', 'Notes'];
   
   // Format rows
   const rows = symptoms.map(symptom => [
@@ -22,6 +22,8 @@ export function generateCSV(symptoms: Symptom[]): string {
     symptom.durationType,
     new Date(symptom.date).toLocaleString(),
     Array.isArray(symptom.triggers) ? symptom.triggers.join(', ') : '',
+    Array.isArray(symptom.reliefMethods) ? symptom.reliefMethods.join(', ') : '',
+    symptom.reliefEffectiveness || 'N/A',
     symptom.notes || ''
   ]);
   
@@ -55,13 +57,15 @@ export function generatePDF(symptoms: Symptom[]): jsPDF {
   }
   
   // Prepare table data
-  const tableColumn = ["Date", "Symptom", "Severity", "Duration", "Triggers", "Notes"];
+  const tableColumn = ["Date", "Symptom", "Severity", "Duration", "Triggers", "Relief Methods", "Relief Effectiveness", "Notes"];
   const tableRows = symptoms.map(symptom => [
     new Date(symptom.date).toLocaleString(),
     symptom.name,
     `${symptom.severity}/10`,
     `${symptom.duration} ${symptom.durationType}`,
     Array.isArray(symptom.triggers) ? symptom.triggers.join(', ') : '',
+    Array.isArray(symptom.reliefMethods) ? symptom.reliefMethods.join(', ') : '',
+    symptom.reliefEffectiveness ? `${symptom.reliefEffectiveness}/10` : 'N/A',
     symptom.notes || ''
   ]);
   
@@ -70,8 +74,16 @@ export function generatePDF(symptoms: Symptom[]): jsPDF {
     head: [tableColumn],
     body: tableRows,
     startY: 40,
-    styles: { fontSize: 10, cellPadding: 3 },
-    columnStyles: { 0: { cellWidth: 35 } },
+    styles: { fontSize: 8, cellPadding: 2 },
+    columnStyles: { 
+      0: { cellWidth: 28 },
+      1: { cellWidth: 25 },
+      2: { cellWidth: 15 },
+      3: { cellWidth: 15 },
+      4: { cellWidth: 25 },
+      5: { cellWidth: 25 },
+      6: { cellWidth: 15 },
+    },
     margin: { top: 40 },
   });
   

@@ -12,6 +12,8 @@ export const symptoms = pgTable("symptoms", {
   date: timestamp("date").notNull().defaultNow(),
   triggers: json("triggers").$type<string[]>().default([]),
   notes: text("notes"),
+  reliefMethods: json("relief_methods").$type<string[]>().default([]),
+  reliefEffectiveness: integer("relief_effectiveness"), // 1-10 scale, optional
 });
 
 // Define the triggers table for common triggers

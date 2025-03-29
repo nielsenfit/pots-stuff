@@ -32,6 +32,9 @@ export default function AddSymptomModal({
   const [selectedTriggers, setSelectedTriggers] = useState<string[]>([]);
   const [triggerInput, setTriggerInput] = useState('');
   const [notes, setNotes] = useState('');
+  const [reliefMethods, setReliefMethods] = useState<string[]>([]);
+  const [reliefInput, setReliefInput] = useState('');
+  const [reliefEffectiveness, setReliefEffectiveness] = useState(5);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [offlineMode] = useLocalStorage('offlineMode', true);
@@ -55,6 +58,23 @@ export default function AddSymptomModal({
     setSelectedTriggers([]);
     setTriggerInput('');
     setNotes('');
+    setReliefMethods([]);
+    setReliefInput('');
+    setReliefEffectiveness(5);
+  };
+  
+  const addReliefMethod = () => {
+    if (!reliefInput.trim()) return;
+    
+    // Check if this relief method is already added
+    if (!reliefMethods.includes(reliefInput.trim())) {
+      setReliefMethods([...reliefMethods, reliefInput.trim()]);
+    }
+    setReliefInput('');
+  };
+  
+  const removeReliefMethod = (method: string) => {
+    setReliefMethods(reliefMethods.filter(m => m !== method));
   };
 
   // Fetch triggers
@@ -158,7 +178,9 @@ export default function AddSymptomModal({
       durationType,
       triggers: selectedTriggers,
       notes: notes.trim(),
-      date: new Date().toISOString()
+      date: new Date().toISOString(),
+      reliefMethods: reliefMethods,
+      reliefEffectiveness: reliefMethods.length > 0 ? reliefEffectiveness : undefined
     };
 
     // Store locally if offline mode is enabled
@@ -313,6 +335,75 @@ export default function AddSymptomModal({
             </div>
           </div>
           
+          <div className="space-y-2">
+            <Label htmlFor="relief-input">Relief Methods (Optional)</Label>
+            {reliefMethods.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2" role="group" aria-label="Relief methods">
+                {reliefMethods.map((method, i) => (
+                  <Badge key={i} variant="outline" className="flex items-center bg-green-50 dark:bg-green-900 text-green-800 dark:text-green-100 border-green-200 dark:border-green-800">
+                    {method}
+                    <button
+                      type="button"
+                      className="ml-1 text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+                      onClick={() => removeReliefMethod(method)}
+                      aria-label={`Remove ${method}`}
+                    >
+                      <XCircle className="h-3 w-3" aria-hidden="true" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            )}
+            <div className="flex">
+              <Input
+                id="relief-input"
+                placeholder="Add relief method"
+                value={reliefInput}
+                onChange={(e) => setReliefInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addReliefMethod();
+                  }
+                }}
+                aria-label="Relief method"
+              />
+              <Button 
+                variant="secondary" 
+                className="ml-2 flex items-center justify-center" 
+                onClick={addReliefMethod}
+                disabled={!reliefInput.trim()}
+                aria-label="Add relief method"
+              >
+                Add
+              </Button>
+            </div>
+            
+            {reliefMethods.length > 0 && (
+              <div className="mt-4 space-y-2">
+                <Label htmlFor="relief-effectiveness-slider">Relief Effectiveness ({reliefEffectiveness}/10)</Label>
+                <div className="flex items-center pt-2">
+                  <span className="text-xs text-gray-500 dark:text-gray-400 w-8" id="relief-min" aria-hidden="true">Low</span>
+                  <Slider
+                    id="relief-effectiveness-slider"
+                    value={[reliefEffectiveness]}
+                    min={1}
+                    max={10}
+                    step={1}
+                    onValueChange={(value) => setReliefEffectiveness(value[0])}
+                    className="flex-1 mx-2"
+                    aria-valuemin={1}
+                    aria-valuemax={10}
+                    aria-valuenow={reliefEffectiveness}
+                    aria-labelledby="relief-effectiveness-slider"
+                    aria-describedby="relief-min relief-max"
+                  />
+                  <span className="text-xs text-gray-500 dark:text-gray-400 w-8" id="relief-max" aria-hidden="true">High</span>
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="notes">Notes (Optional)</Label>
             <Textarea

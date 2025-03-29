@@ -172,6 +172,7 @@ export default function History() {
                       <TableHead>Severity</TableHead>
                       <TableHead>Duration</TableHead>
                       <TableHead>Triggers</TableHead>
+                      <TableHead>Relief Methods</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -204,6 +205,30 @@ export default function History() {
                                 {trigger}
                               </Badge>
                             ))}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            {symptom.reliefMethods && symptom.reliefMethods.length > 0 ? (
+                              <>
+                                {symptom.reliefMethods.map((method, i) => (
+                                  <Badge 
+                                    key={i} 
+                                    variant="outline" 
+                                    className="mr-1 mb-1 bg-green-50 dark:bg-green-900 text-green-800 dark:text-green-100 border-green-200 dark:border-green-800"
+                                  >
+                                    {method}
+                                  </Badge>
+                                ))}
+                                {symptom.reliefEffectiveness && (
+                                  <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 ml-1">
+                                    Effectiveness: {symptom.reliefEffectiveness}/10
+                                  </Badge>
+                                )}
+                              </>
+                            ) : (
+                              <span className="text-gray-400 dark:text-gray-500 text-sm italic">None recorded</span>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>

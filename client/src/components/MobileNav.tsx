@@ -16,7 +16,7 @@ export default function MobileNav({ openAddSymptom }: MobileNavProps) {
 
   return (
     <div className="md:hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 fixed bottom-0 left-0 right-0 z-10">
-      <div className="flex justify-around">
+      <div className="flex justify-around items-center relative">
         <Link href="/">
           <div className={`flex flex-col items-center py-3 px-4 cursor-pointer ${
             location === "/" ? "text-primary" : "text-gray-500 dark:text-gray-400"
@@ -35,7 +35,7 @@ export default function MobileNav({ openAddSymptom }: MobileNavProps) {
         </Link>
         <button 
           onClick={openAddSymptom}
-          className="flex items-center justify-center w-14 h-14 bg-primary text-white rounded-full -mt-6 shadow-lg"
+          className="flex items-center justify-center w-14 h-14 bg-primary text-white rounded-full -mt-6 shadow-lg relative z-20"
           aria-label="Add symptom"
         >
           <Plus className="h-8 w-8" aria-hidden="true" />
