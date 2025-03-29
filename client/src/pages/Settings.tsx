@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 import MobileNav from '@/components/MobileNav';
 import { Button } from '@/components/ui/button';
@@ -29,13 +29,58 @@ import { useToast } from "@/hooks/use-toast";
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import AddSymptomModal from '@/components/AddSymptomModal';
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from '@/components/ui/checkbox';
+import { Separator } from '@/components/ui/separator';
+import { format } from 'date-fns';
+import { CalendarIcon, PlusCircle, X } from "lucide-react";
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { UserProfile, InsertUserProfile, REMINDER_PREFERENCES } from '@shared/schema';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import localforage from 'localforage';
+
+// Create a form schema for profile
+const profileFormSchema = z.object({
+  name: z.string().optional().nullable(),
+  email: z.string().email({ message: "Please enter a valid email" }).optional().nullable(),
+  diagnosisDate: z.date().optional().nullable(),
+  doctorName: z.string().optional().nullable(),
+  doctorPhone: z.string().optional().nullable(),
+  emergencyContact: z.string().optional().nullable(),
+  emergencyPhone: z.string().optional().nullable(),
+  reminderPreference: z.string().optional().nullable(),
+  healthConditions: z.array(z.string()).optional().nullable(),
+});
 
 export default function Settings() {
   const [addSymptomOpen, setAddSymptomOpen] = useState(false);
   const { toast } = useToast();
   const [darkMode, setDarkMode] = useLocalStorage('theme', 'dark');
   const [offlineMode, setOfflineMode] = useLocalStorage('offlineMode', true);
+  const queryClient = useQueryClient();
   const { 
     highContrast, 
     setHighContrast, 
@@ -44,6 +89,101 @@ export default function Settings() {
     screenReaderOptimized, 
     setScreenReaderOptimized 
   } = useAccessibility();
+  
+  // For health conditions management
+  const [newCondition, setNewCondition] = useState('');
+  
+  // Fetch user profile
+  const { data: profile, isLoading: profileLoading } = useQuery<UserProfile>({
+    queryKey: ['/api/profile'],
+    onSuccess: (data) => {
+      console.log("Profile loaded:", data);
+    }
+  });
+  
+  // Set up react-hook-form
+  const form = useForm<z.infer<typeof profileFormSchema>>({
+    resolver: zodResolver(profileFormSchema),
+    defaultValues: {
+      name: profile?.name || "",
+      email: profile?.email || "",
+      diagnosisDate: profile?.diagnosisDate ? new Date(profile.diagnosisDate) : undefined,
+      doctorName: profile?.doctorName || "",
+      doctorPhone: profile?.doctorPhone || "",
+      emergencyContact: profile?.emergencyContact || "",
+      emergencyPhone: profile?.emergencyPhone || "",
+      reminderPreference: profile?.reminderPreference || REMINDER_PREFERENCES.APP,
+      healthConditions: profile?.healthConditions || [],
+    }
+  });
+  
+  // Update form values when profile loads
+  useEffect(() => {
+    if (profile) {
+      form.reset({
+        name: profile.name || "",
+        email: profile.email || "",
+        diagnosisDate: profile.diagnosisDate ? new Date(profile.diagnosisDate) : undefined,
+        doctorName: profile.doctorName || "",
+        doctorPhone: profile.doctorPhone || "",
+        emergencyContact: profile.emergencyContact || "",
+        emergencyPhone: profile.emergencyPhone || "",
+        reminderPreference: profile.reminderPreference || REMINDER_PREFERENCES.APP,
+        healthConditions: profile.healthConditions || [],
+      });
+    }
+  }, [profile, form]);
+  
+  // Handle adding new health condition
+  const addHealthCondition = () => {
+    if (!newCondition.trim()) return;
+    
+    const currentConditions = form.getValues("healthConditions") || [];
+    if (!currentConditions.includes(newCondition.trim())) {
+      form.setValue("healthConditions", [...currentConditions, newCondition.trim()]);
+    }
+    setNewCondition("");
+  };
+  
+  // Handle removing health condition
+  const removeHealthCondition = (condition: string) => {
+    const currentConditions = form.getValues("healthConditions") || [];
+    form.setValue(
+      "healthConditions", 
+      currentConditions.filter(c => c !== condition)
+    );
+  };
+  
+  // Update profile mutation
+  const updateProfileMutation = useMutation({
+    mutationFn: async (data: Partial<InsertUserProfile>) => {
+      return await apiRequest('/api/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/profile'] });
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been updated successfully.",
+      });
+    },
+    onError: (error) => {
+      console.error("Error updating profile:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update profile. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Handle profile form submission
+  const onSubmitProfile = (data: z.infer<typeof profileFormSchema>) => {
+    updateProfileMutation.mutate(data);
+  };
   
   const handleClearData = async () => {
     try {
@@ -140,10 +280,303 @@ export default function Settings() {
             <Tabs defaultValue="preferences" className="space-y-6">
               <TabsList>
                 <TabsTrigger value="preferences">Preferences</TabsTrigger>
+                <TabsTrigger value="profile">Profile</TabsTrigger>
                 <TabsTrigger value="data">Data Management</TabsTrigger>
+                <TabsTrigger value="support">Help & Support</TabsTrigger>
                 <TabsTrigger value="about">About</TabsTrigger>
               </TabsList>
 
+              <TabsContent value="profile">
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmitProfile)} className="space-y-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Personal Information</CardTitle>
+                        <CardDescription>
+                          Update your profile information
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* Name */}
+                          <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Name</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Your name" {...field} value={field.value || ""} />
+                                </FormControl>
+                                <FormDescription>
+                                  Your name as you'd like it to appear in the app
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          {/* Email */}
+                          <FormField
+                            control={form.control}
+                            name="email"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Email</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    type="email" 
+                                    placeholder="email@example.com" 
+                                    {...field} 
+                                    value={field.value || ""} 
+                                  />
+                                </FormControl>
+                                <FormDescription>
+                                  Used for notifications if enabled
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          {/* Diagnosis Date */}
+                          <FormField
+                            control={form.control}
+                            name="diagnosisDate"
+                            render={({ field }) => (
+                              <FormItem className="flex flex-col">
+                                <FormLabel>PoTS/Diagnosis Date</FormLabel>
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <FormControl>
+                                      <Button
+                                        variant={"outline"}
+                                        className={`w-full pl-3 text-left font-normal ${!field.value ? "text-muted-foreground" : ""}`}
+                                      >
+                                        {field.value ? (
+                                          format(field.value, "PPP")
+                                        ) : (
+                                          <span>Pick a date</span>
+                                        )}
+                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                      </Button>
+                                    </FormControl>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar
+                                      mode="single"
+                                      selected={field.value || undefined}
+                                      onSelect={field.onChange}
+                                      disabled={(date) => date > new Date()}
+                                      initialFocus
+                                    />
+                                  </PopoverContent>
+                                </Popover>
+                                <FormDescription>
+                                  When you were diagnosed with PoTS or your condition
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          {/* Health Conditions */}
+                          <FormField
+                            control={form.control}
+                            name="healthConditions"
+                            render={() => (
+                              <FormItem>
+                                <div className="space-y-2">
+                                  <FormLabel>Health Conditions</FormLabel>
+                                  
+                                  {form.getValues("healthConditions")?.length ? (
+                                    <div className="flex flex-wrap gap-2">
+                                      {form.getValues("healthConditions")?.map((condition) => (
+                                        <Badge key={condition} variant="secondary" className="flex items-center">
+                                          {condition}
+                                          <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-4 w-4 ml-1 p-0"
+                                            onClick={() => removeHealthCondition(condition)}
+                                          >
+                                            <X className="h-3 w-3" />
+                                          </Button>
+                                        </Badge>
+                                      ))}
+                                    </div>
+                                  ) : null}
+                                  
+                                  <div className="flex">
+                                    <Input
+                                      placeholder="Add condition (e.g., PoTS, EDS, etc.)"
+                                      value={newCondition}
+                                      onChange={(e) => setNewCondition(e.target.value)}
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                          e.preventDefault();
+                                          addHealthCondition();
+                                        }
+                                      }}
+                                    />
+                                    <Button 
+                                      type="button"
+                                      variant="outline" 
+                                      className="ml-2" 
+                                      onClick={addHealthCondition}
+                                      disabled={!newCondition.trim()}
+                                    >
+                                      Add
+                                    </Button>
+                                  </div>
+                                  <FormDescription>
+                                    List your health conditions for context
+                                  </FormDescription>
+                                </div>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <Separator />
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div>
+                            <h3 className="text-lg font-medium mb-4">Emergency Contact</h3>
+                            
+                            {/* Emergency Contact Name */}
+                            <FormField
+                              control={form.control}
+                              name="emergencyContact"
+                              render={({ field }) => (
+                                <FormItem className="mb-4">
+                                  <FormLabel>Emergency Contact Name</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Contact name" {...field} value={field.value || ""} />
+                                  </FormControl>
+                                  <FormDescription>
+                                    Name of your emergency contact
+                                  </FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            {/* Emergency Phone */}
+                            <FormField
+                              control={form.control}
+                              name="emergencyPhone"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Emergency Phone Number</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Phone number" {...field} value={field.value || ""} />
+                                  </FormControl>
+                                  <FormDescription>
+                                    Phone number for emergencies
+                                  </FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+
+                          <div>
+                            <h3 className="text-lg font-medium mb-4">Healthcare Provider</h3>
+                            
+                            {/* Doctor Name */}
+                            <FormField
+                              control={form.control}
+                              name="doctorName"
+                              render={({ field }) => (
+                                <FormItem className="mb-4">
+                                  <FormLabel>Doctor's Name</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Doctor's name" {...field} value={field.value || ""} />
+                                  </FormControl>
+                                  <FormDescription>
+                                    Your primary healthcare provider
+                                  </FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            {/* Doctor Phone */}
+                            <FormField
+                              control={form.control}
+                              name="doctorPhone"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Doctor's Phone Number</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Doctor's phone" {...field} value={field.value || ""} />
+                                  </FormControl>
+                                  <FormDescription>
+                                    Contact number for your doctor
+                                  </FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
+
+                        <Separator />
+                        
+                        {/* Reminder Preferences */}
+                        <FormField
+                          control={form.control}
+                          name="reminderPreference"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Reminder Preferences</FormLabel>
+                              <Select 
+                                onValueChange={field.onChange} 
+                                defaultValue={field.value || REMINDER_PREFERENCES.APP}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select how you want to receive reminders" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value={REMINDER_PREFERENCES.APP}>In-App Notifications</SelectItem>
+                                  <SelectItem value={REMINDER_PREFERENCES.EMAIL}>Email Notifications</SelectItem>
+                                  <SelectItem value={REMINDER_PREFERENCES.BOTH}>Both App and Email</SelectItem>
+                                  <SelectItem value={REMINDER_PREFERENCES.NONE}>No Notifications</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormDescription>
+                                How you want to receive medication and tracking reminders
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </CardContent>
+                      <CardFooter className="flex justify-between">
+                        <Button 
+                          variant="outline" 
+                          type="button" 
+                          onClick={() => form.reset()}
+                        >
+                          Reset
+                        </Button>
+                        <Button 
+                          type="submit" 
+                          disabled={updateProfileMutation.isPending}
+                        >
+                          {updateProfileMutation.isPending ? "Saving..." : "Save Profile"}
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  </form>
+                </Form>
+              </TabsContent>
+              
               <TabsContent value="preferences">
                 <Card>
                   <CardHeader>
@@ -322,6 +755,141 @@ export default function Settings() {
                 </Card>
               </TabsContent>
 
+              <TabsContent value="support">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Help & Support</CardTitle>
+                    <CardDescription>
+                      Resources to help you manage your condition
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-medium mb-2">Frequently Asked Questions</h3>
+                      <div className="space-y-3">
+                        <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg">
+                          <h4 className="font-medium text-primary">How do I log a new symptom?</h4>
+                          <p className="text-sm mt-1 text-gray-500 dark:text-gray-400">
+                            Tap the "+" button at the bottom of the screen or use the "Add Symptom" button on the Dashboard. Fill in the details about your symptom, including severity, duration, and any triggers.
+                          </p>
+                        </div>
+                        
+                        <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg">
+                          <h4 className="font-medium text-primary">How do I add or manage medications?</h4>
+                          <p className="text-sm mt-1 text-gray-500 dark:text-gray-400">
+                            Navigate to the Medications tab using the sidebar or bottom navigation. Click "Add Medication" to add a new entry. You can set reminders and track your medication schedule.
+                          </p>
+                        </div>
+                        
+                        <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg">
+                          <h4 className="font-medium text-primary">Can I export my data to share with my doctor?</h4>
+                          <p className="text-sm mt-1 text-gray-500 dark:text-gray-400">
+                            Yes! Go to Settings, then Data Management, and click "Export as CSV". This will download a file you can send to your healthcare provider or open in spreadsheet software.
+                          </p>
+                        </div>
+                        
+                        <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg">
+                          <h4 className="font-medium text-primary">How do I use the app when I don't have internet?</h4>
+                          <p className="text-sm mt-1 text-gray-500 dark:text-gray-400">
+                            Enable "Offline Mode" in Settings, then Preferences. This will store your data locally on your device, and it will sync when you're back online.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <Separator />
+                    
+                    <div>
+                      <h3 className="text-lg font-medium mb-2">Useful Resources</h3>
+                      <div className="space-y-4">
+                        <div>
+                          <h4 className="font-medium">PoTS Resources</h4>
+                          <ul className="mt-1 space-y-2">
+                            <li>
+                              <a 
+                                href="https://www.potsuk.org/" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-primary hover:underline flex items-center"
+                              >
+                                PoTS UK
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 ml-1">
+                                  <path fillRule="evenodd" d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z" clipRule="evenodd" />
+                                </svg>
+                              </a>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">Information and support for PoTS patients in the UK</p>
+                            </li>
+                            <li>
+                              <a 
+                                href="https://www.dysautonomiainternational.org/" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-primary hover:underline flex items-center"
+                              >
+                                Dysautonomia International
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 ml-1">
+                                  <path fillRule="evenodd" d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z" clipRule="evenodd" />
+                                </svg>
+                              </a>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">Support and research for autonomic nervous system disorders</p>
+                            </li>
+                          </ul>
+                        </div>
+                        
+                        <div>
+                          <h4 className="font-medium">Chronic Illness Management</h4>
+                          <ul className="mt-1 space-y-2">
+                            <li>
+                              <a 
+                                href="https://www.nhs.uk/conditions/postural-tachycardia-syndrome/" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-primary hover:underline flex items-center"
+                              >
+                                NHS PoTS Information
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 ml-1">
+                                  <path fillRule="evenodd" d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z" clipRule="evenodd" />
+                                </svg>
+                              </a>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">Official NHS guidance on PoTS</p>
+                            </li>
+                            <li>
+                              <a 
+                                href="https://www.mayoclinic.org/diseases-conditions/postural-tachycardia-syndrome/symptoms-causes/syc-20355711" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-primary hover:underline flex items-center"
+                              >
+                                Mayo Clinic PoTS Guide
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 ml-1">
+                                  <path fillRule="evenodd" d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z" clipRule="evenodd" />
+                                </svg>
+                              </a>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">Comprehensive information on symptoms and treatment</p>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <Separator />
+                    
+                    <div>
+                      <h3 className="text-lg font-medium mb-2">Contact Support</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                        Having issues with the app or need assistance? Get in touch with our support team.
+                      </p>
+                      <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-lg">
+                        <p className="text-sm font-medium">Email Support</p>
+                        <a href="mailto:support@potssymptomtracker.com" className="text-primary hover:underline">
+                          support@potssymptomtracker.com
+                        </a>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
               <TabsContent value="about">
                 <Card>
                   <CardHeader>
