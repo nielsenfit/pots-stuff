@@ -81,16 +81,14 @@ export default function QuickAdd({ onSymptomClick }: QuickAddProps) {
         
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <div className="flex justify-center">
-              <div className="bg-primary bg-opacity-10 rounded-lg py-3 px-4 inline-flex">
-                <Button 
-                  variant="secondary" 
-                  className="font-medium border border-primary flex items-center justify-center mx-auto"
-                  aria-label="Add custom symptom"
-                >
-                  <Plus className="w-4 h-4 mr-2" aria-hidden="true" /> Add custom symptom
-                </Button>
-              </div>
+            <div className="flex justify-center mt-4">
+              <Button 
+                variant="outline" 
+                className="font-medium border border-primary flex items-center justify-center mx-auto"
+                aria-label="Add custom symptom"
+              >
+                <Plus className="w-4 h-4 mr-2" aria-hidden="true" /> Add custom symptom
+              </Button>
             </div>
           </DialogTrigger>
           <DialogContent aria-labelledby="custom-symptom-dialog-title">
